@@ -1,3 +1,8 @@
+# Requirements
+
+1. Nodejs v0.11.0
+2. NPM v6.4.1
+
 # Build & Running
 
 1. Install nodejs
