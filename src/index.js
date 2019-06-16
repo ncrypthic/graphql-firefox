@@ -7,6 +7,13 @@
  * various React params to enable interesting integrations.
  */
 // Parse the search string to get url parameters.
+const React    = require('react');
+const ReactDOM = require('react-dom');
+const Promise  = require('es6-promise');
+const GraphiQL = require('graphiql');
+require('graphiql/graphiql.css');
+const R = React.createElement;
+
 var search = window.location.search;
 var parameters = {};
 search.substr(1).split('&').forEach(function (entry) {
@@ -32,14 +39,17 @@ function onEditQuery(newQuery) {
   parameters.query = newQuery;
   updateURL();
 }
+
 function onEditVariables(newVariables) {
   parameters.variables = newVariables;
   updateURL();
 }
+
 function onEditOperationName(newOperationName) {
   parameters.operationName = newOperationName;
   updateURL();
 }
+
 function updateURL() {
   var newSearch = '?' + Object.keys(parameters).filter(function (key) {
     return Boolean(parameters[key]);
@@ -49,16 +59,13 @@ function updateURL() {
   }).join('&');
   history.replaceState(null, null, newSearch);
 }
-const R = React.createElement;
+
 function InitialComponent(props) {
   const [server, setServer] = React.useState(null);
   const inputRef = React.createRef();
-  // Defines a GraphQL fetcher using the fetch API. You're not required to
-  // use fetch, and could instead implement graphQLFetcher however you like,
-  // as long as it returns a Promise or Observable.
   function graphQLFetcher(graphQLParams) {
     if(!server) {
-      return {};
+      return new Promise((_, reject) => reject('Please set graphql endpoint'));
     }
     // This example expects a GraphQL server at the path /graphql.
     // Change this to point wherever you host your GraphQL server.
@@ -79,33 +86,20 @@ function InitialComponent(props) {
       }
     });
   }
-  //return R('div', {className: 'graphql-container'},
-  return R(GraphiQL, {fetcher: graphQLFetcher},
-    R(GraphiQL.Toolbar, {className: 'top-bar'},
-      [
-        R(GraphiQL.Logo, null),
-        R('input', {type: 'text', ref: inputRef}),
-        R('button', {type: 'button', onClick: () => setServer(inputRef.current.value) }, 'Set Location'),
-      ]
-    )
-  );
-}
-/*
-// Render <GraphiQL /> into the body.
-// See the README in the top level of this module to learn more about
-// how you can customize GraphiQL by providing different values or
-// additional child elements.
-ReactDOM.render(
-  React.createElement(GraphiQL, {
+  const graphiqlProps = {
     fetcher: graphQLFetcher,
-    query: parameters.query,
-    variables: parameters.variables,
-    operationName: parameters.operationName,
-    onEditQuery: onEditQuery,
-    onEditVariables: onEditVariables,
-    onEditOperationName: onEditOperationName
-  }),
-  document.getElementById('graphiql')
-);
-*/
+    onEditOperationName,
+    onEditVariables,
+    onEditQuery,
+  }
+  return R(GraphiQL, graphiqlProps,
+      R(GraphiQL.Toolbar, {}, [
+        R(GraphiQL.Button, {onClick: () => window.g.handlePrettifyQuery(), label: 'Prettify'}),
+        R(GraphiQL.Button, {onClick: () => window.g.handleToggleHistory(), label: 'History'}),
+        R('input', {type: 'text', ref: inputRef}),
+        R(GraphiQL.Button, {onClick: () => setServer(inputRef.current.value), label: 'Set Location'}),
+      ])
+    );
+}
+
 ReactDOM.render(R(InitialComponent), document.getElementById('graphiql'));
