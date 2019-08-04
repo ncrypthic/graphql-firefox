@@ -4,7 +4,8 @@
   "version": "1.0.1",
   "description": "GraphiQL as firefox extension",
   "permissions": [
-    "tabs"
+    "tabs",
+    "<all_urls>"
   ],
   "browser_action": {
     "default_title": "GraphiQL",

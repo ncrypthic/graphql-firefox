@@ -67,8 +67,10 @@ function InitialComponent(props) {
     if(!server) {
       return new Promise((_, reject) => reject('Please set graphql endpoint'));
     }
-    // This example expects a GraphQL server at the path /graphql.
-    // Change this to point wherever you host your GraphQL server.
+    if(/^http/.test(server) === false) {
+      return new Promise((_, reject) => reject('Please use fully qualified server url. e.g. http://example.com or https://example.com'));
+    }
+
     return fetch(server, {
       method: 'post',
       headers: {
@@ -84,10 +86,13 @@ function InitialComponent(props) {
       } catch (error) {
         return responseBody;
       }
+    }).catch(function(err) {
+      return `${server} is not a valid graphql endpoint.\n Please make sure the server url can handle graphql instrospection (https://graphql.org/learn/introspection/)`
     });
   }
   const graphiqlProps = {
     fetcher: graphQLFetcher,
+    response: "",
     onEditOperationName,
     onEditVariables,
     onEditQuery,
@@ -96,7 +101,7 @@ function InitialComponent(props) {
       R(GraphiQL.Toolbar, {}, [
         R(GraphiQL.Button, {onClick: () => window.g.handlePrettifyQuery(), label: 'Prettify'}),
         R(GraphiQL.Button, {onClick: () => window.g.handleToggleHistory(), label: 'History'}),
-        R('input', {type: 'text', ref: inputRef}),
+        R('input', {type: 'text', ref: inputRef, placeholder: "http://example.com/graphql"}),
         R(GraphiQL.Button, {onClick: () => setServer(inputRef.current.value), label: 'Set Location'}),
       ])
     );
