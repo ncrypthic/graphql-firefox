@@ -12,7 +12,7 @@
   "dependencies": {
     "es6-promise": "^4.2.8",
     "fetch-polyfill": "^0.8.2",
-    "graphiql": "^0.13.0",
+    "graphiql": "^1.4.7",
     "graphql": "^14.3.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
